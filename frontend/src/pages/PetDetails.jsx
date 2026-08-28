@@ -22,7 +22,7 @@ export default function PetDetails() {
   // Get Pet Details
   // =========================
   useEffect(() => {
-    fetch(`http://localhost:5000/api/pets/${id}`)
+    fetch(`https://paw-pals-backend.vercel.app/api/pets/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setPet(data);
@@ -54,7 +54,7 @@ export default function PetDetails() {
       setSubmitting(true);
 
       const res = await fetch(
-        `http://localhost:5000/api/adoptions/request/${id}`,
+        `https://paw-pals-backend.vercel.app/api/adoptions/request/${id}`,
         {
           method: 'POST',
           headers: {

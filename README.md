@@ -213,7 +213,7 @@ node server.js
 The backend will run on:
 
 ```text
-http://localhost:5000
+https://paw-pals-backend.vercel.app
 ```
 
 ### 3. Frontend Setup

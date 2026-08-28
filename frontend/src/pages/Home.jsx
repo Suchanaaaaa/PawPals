@@ -6,7 +6,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/pets')
+    fetch('https://paw-pals-backend.vercel.app/api/pets')
       .then((res) => res.json())
       .then((data) => {
         setPets(data);

@@ -29,7 +29,7 @@ export default function SubmitPet() {
     token = token.replace(/^["']|["']$/g, '').trim();
 
     try {
-      const res = await fetch('http://localhost:5000/api/pets/add', {
+      const res = await fetch('https://paw-pals-backend.vercel.app/api/pets/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
