@@ -6,30 +6,38 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-// ১. আগে app ইনিশিয়ালাইজ করতে হবে
+// ১. App initialize
 const app = express();
 
-// ২. মিডলওয়্যার
+// ২. Middleware
 app.use(cors());
 app.use(express.json());
 
-// ৩. রাউট ইমপোর্ট
+// ৩. Routes import
 const authRoutes = require('./routes/authRoutes');
 const petRoutes = require('./routes/petRoutes');
+const adoptionRoutes = require('./routes/adoptionRoutes');
 
-// ৪. রাউটার ব্যবহার
+// ৪. Routes use
 app.use('/api/auth', authRoutes);
 app.use('/api/pets', petRoutes);
+app.use('/api/adoptions', adoptionRoutes);
 
-// ৫. ডাটাবেজ কানেকশন (MongoDB Atlas)
+// ৫. Server & MongoDB configuration
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://tasfiakhanamsuchona_db_user:3vdljeNYk1FkP1Ym@cluster0.e0ulzum.mongodb.net/pawpals?retryWrites=true&w=majority';
+const MONGO_URI = process.env.MONGO_URI;
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB Atlas Connected successfully!'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+// MongoDB Atlas connection
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log('MongoDB Atlas Connected successfully!');
+  })
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+  });
 
-// ৬. সার্ভার লিসেন
+// ৬. Server listen
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
