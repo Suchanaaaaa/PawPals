@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
@@ -9,6 +9,13 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
+
+  // ==========================================
+  // API Base URL
+  // ==========================================
+  const API_URL =
+    process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 
   // ==========================================
   // Get Token
@@ -27,7 +34,7 @@ export default function AdminDashboard() {
   // ==========================================
   // Fetch Pending Pets
   // ==========================================
-  const fetchPendingPets = async () => {
+  const fetchPendingPets = useCallback(async () => {
     const token = getToken();
 
     if (!token) {
@@ -37,7 +44,7 @@ export default function AdminDashboard() {
 
     try {
       const res = await fetch(
-        'http://localhost:5000/api/pets/admin/pending',
+        `${API_URL}/api/pets/admin/pending`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -48,7 +55,9 @@ export default function AdminDashboard() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to load pets');
+        throw new Error(
+          data.message || 'Failed to load pets'
+        );
       }
 
       setPendingPets(data);
@@ -57,13 +66,13 @@ export default function AdminDashboard() {
       console.error(err);
       setError(err.message);
     }
-  };
+  }, [navigate, API_URL]);
 
 
   // ==========================================
   // Fetch Adoption Requests
   // ==========================================
-  const fetchAdoptionRequests = async () => {
+  const fetchAdoptionRequests = useCallback(async () => {
     const token = getToken();
 
     if (!token) {
@@ -73,7 +82,7 @@ export default function AdminDashboard() {
 
     try {
       const res = await fetch(
-        'http://localhost:5000/api/adoptions/admin/all',
+        `${API_URL}/api/adoptions/admin/all`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -95,7 +104,7 @@ export default function AdminDashboard() {
       console.error(err);
       setError(err.message);
     }
-  };
+  }, [navigate, API_URL]);
 
 
   // ==========================================
@@ -141,7 +150,11 @@ export default function AdminDashboard() {
       navigate('/login');
     }
 
-  }, [navigate]);
+  }, [
+    navigate,
+    fetchPendingPets,
+    fetchAdoptionRequests
+  ]);
 
 
   // ==========================================
@@ -150,9 +163,14 @@ export default function AdminDashboard() {
   const handleApprovePet = async (id) => {
     const token = getToken();
 
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
     try {
       const res = await fetch(
-        `http://localhost:5000/api/pets/admin/approve/${id}`,
+        `${API_URL}/api/pets/admin/approve/${id}`,
         {
           method: 'PUT',
           headers: {
@@ -171,7 +189,9 @@ export default function AdminDashboard() {
         );
 
       } else {
-        alert(data.message || 'Failed to approve pet');
+        alert(
+          data.message || 'Failed to approve pet'
+        );
       }
 
     } catch (err) {
@@ -187,6 +207,11 @@ export default function AdminDashboard() {
   const handleRejectPet = async (id) => {
     const token = getToken();
 
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
     const confirmReject = window.confirm(
       'Are you sure you want to reject this pet?'
     );
@@ -197,7 +222,7 @@ export default function AdminDashboard() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/pets/admin/reject/${id}`,
+        `${API_URL}/api/pets/admin/reject/${id}`,
         {
           method: 'PUT',
           headers: {
@@ -216,7 +241,9 @@ export default function AdminDashboard() {
         );
 
       } else {
-        alert(data.message || 'Failed to reject pet');
+        alert(
+          data.message || 'Failed to reject pet'
+        );
       }
 
     } catch (err) {
@@ -232,6 +259,11 @@ export default function AdminDashboard() {
   const handleApproveAdoption = async (id) => {
     const token = getToken();
 
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
     const confirmApprove = window.confirm(
       'Approve this adoption request? The pet will be marked as Adopted.'
     );
@@ -242,7 +274,7 @@ export default function AdminDashboard() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/adoptions/admin/approve/${id}`,
+        `${API_URL}/api/adoptions/admin/approve/${id}`,
         {
           method: 'PUT',
           headers: {
@@ -256,11 +288,12 @@ export default function AdminDashboard() {
       if (res.ok) {
         alert('Adoption approved successfully!');
 
-        fetchAdoptionRequests();
+        await fetchAdoptionRequests();
 
       } else {
         alert(
-          data.message || 'Failed to approve adoption request'
+          data.message ||
+          'Failed to approve adoption request'
         );
       }
 
@@ -277,6 +310,11 @@ export default function AdminDashboard() {
   const handleRejectAdoption = async (id) => {
     const token = getToken();
 
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
     const confirmReject = window.confirm(
       'Are you sure you want to reject this adoption request?'
     );
@@ -287,7 +325,7 @@ export default function AdminDashboard() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/adoptions/admin/reject/${id}`,
+        `${API_URL}/api/adoptions/admin/reject/${id}`,
         {
           method: 'PUT',
           headers: {
@@ -299,13 +337,16 @@ export default function AdminDashboard() {
       const data = await res.json();
 
       if (res.ok) {
-        alert('Adoption request rejected successfully!');
+        alert(
+          'Adoption request rejected successfully!'
+        );
 
-        fetchAdoptionRequests();
+        await fetchAdoptionRequests();
 
       } else {
         alert(
-          data.message || 'Failed to reject adoption request'
+          data.message ||
+          'Failed to reject adoption request'
         );
       }
 
@@ -688,7 +729,9 @@ export default function AdminDashboard() {
                 }}
               >
 
-                <strong>Why they want to adopt:</strong>
+                <strong>
+                  Why they want to adopt:
+                </strong>
 
                 <p>
                   {request.message}
